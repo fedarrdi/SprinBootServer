@@ -1,23 +1,24 @@
 package com.example.demo;
 
 public class KeyValueData {
-    private String Key, Value;
+    private String key;
+    private String values;
 
     public KeyValueData() {}
 
-    public KeyValueData(String Key, String Value) {
-        this.Key = Key;
-        this.Value = Value;
+    public KeyValueData(String key, String values) {
+        this.key = key;
+        this.values = values;
     }
 
-    public String get_Key() { return Key; }
-    public String get_Values() { return Value; }
+    public String getKey() { return key; }
+    public String getValues() { return values; }
 
-    public void set_Ket(String Key) {
-        this.Key = Key;
+    public void setKey(String key) {
+        this.key = key;
     }
-    public void set_Values(String Value){
-        this.Value = Value;
+    public void setValues(String values){
+        this.values = values;
     }
 
 }

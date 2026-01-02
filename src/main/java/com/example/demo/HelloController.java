@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,12 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public class HelloController {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;  // Auto-configured if starter-jdbc or data-jpa is present
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello from Spring Boot!";
-    }
+    private JdbcTemplate jdbcTemplate;
 
     @GetMapping("/test-db")
     public String testDatabase() {
@@ -28,17 +24,36 @@ public class HelloController {
 
     @PostMapping("/GET_VALUE")
     public String getData(@RequestBody KeyValueData data) {
-        return "GET DATA FROM DATABASE FOR KEY: ";
+        String key = data.getKey();
+        try {
+            String value = jdbcTemplate.queryForObject(
+                    "SELECT value_text FROM key_value_store WHERE key_name = ?",
+                    String.class, key);
+            return value;
+        } catch (EmptyResultDataAccessException e) {
+            return "Key not found: " + key;
+        }
     }
 
     @PostMapping("/POST_VALUE")
-    public String postValue(@RequestBody KeyValueData data){
-        return " POSTING DATA AT KEY + " + data.get_Key() + "WITH VALUE" + data.get_Values() ;
+    public String postValue(@RequestBody KeyValueData data) {
+        String key = data.getKey();
+        String value = data.getValues();
+
+        jdbcTemplate.update(
+                "INSERT INTO key_value_store (key_name, value_text) VALUES (?, ?) " +
+                        "ON DUPLICATE KEY UPDATE value_text = VALUES(value_text)",
+                key, value);
+
+        return "Success: Stored/Updated key '" + key + "'";
     }
 
     @DeleteMapping("/DELETE_VALUE")
-    public String deleteValue(@RequestBody KeyValueData data){
-        return "DELETING VALUE AT KEY: " + data.get_Key();
-    }
+    public String deleteValue(@RequestBody KeyValueData data) {
+        String key = data.getKey();
+        int rows = jdbcTemplate.update(
+                "DELETE FROM key_value_store WHERE key_name = ?", key);
 
+        return rows > 0 ? "Success: Deleted key '" + key + "'" : "Key not found: " + key;
+    }
 }
