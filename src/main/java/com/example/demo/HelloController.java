@@ -2,9 +2,7 @@ package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -27,4 +25,20 @@ public class HelloController {
             return "Database connection failed: " + e.getMessage();
         }
     }
+
+    @PostMapping("/GET_VALUE")
+    public String getData(@RequestBody KeyValueData data) {
+        return "GET DATA FROM DATABASE FOR KEY: ";
+    }
+
+    @PostMapping("/POST_VALUE")
+    public String postValue(@RequestBody KeyValueData data){
+        return " POSTING DATA AT KEY + " + data.get_Key() + "WITH VALUE" + data.get_Values() ;
+    }
+
+    @DeleteMapping("/DELETE_VALUE")
+    public String deleteValue(@RequestBody KeyValueData data){
+        return "DELETING VALUE AT KEY: " + data.get_Key();
+    }
+
 }

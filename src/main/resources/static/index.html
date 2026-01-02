@@ -2,24 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Spring Boot + HTML</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Key-Value API</title>
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .content { display: none; padding: 20px; border: 1px solid #ccc; margin-top: 10px; background: #f9f9f9; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="text"] { width: 350px; padding: 8px; margin-top: 5px; }
+        button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        pre { background: #eee; padding: 10px; margin-top: 20px; white-space: pre-wrap; }
+    </style>
 </head>
 <body>
 
-<h1>Spring Boot API Test</h1>
-<button onclick="callApi()">Call API</button>
+<h1>Test Key-Value API</h1>
 
-<p id="result"></p>
+<label for="choice">Choose operation:</label>
+<select id="choice">
+    <option value="">-- Select --</option>
+    <option value="GET">GET (via POST)</option>
+    <option value="POST">POST - Store key-value</option>
+    <option value="DELETE">DELETE</option>
+</select>
+
+<!-- GET -->
+<div id="GET" class="content">
+    <h2>POST /api/GET_VALUE</h2>
+
+    <label for="get-key">Key:</label>
+    <input type="text" id="get-key" placeholder="Enter key">
+
+    <button id="get-submit">Retrieve Value</button>
+    <div id="get-result"></div>
+</div>
+
+<!-- POST -->
+<div id="POST" class="content">
+    <h2>POST /api/POST_VALUE</h2>
+
+    <label for="post-key">Key:</label>
+    <input type="text" id="post-key" placeholder="Enter key">
+
+    <label for="post-value">Value:</label>
+    <input type="text" id="post-value" placeholder="Enter value">
+
+    <button id="post-submit">Store</button>
+    <div id="post-result"></div>
+</div>
+
+<!-- DELETE -->
+<div id="DELETE" class="content">
+    <h2>DELETE /api/DELETE_VALUE</h2>
+
+    <label for="delete-key">Key:</label>
+    <input type="text" id="delete-key" placeholder="Enter key to delete">
+
+    <button id="delete-submit">Delete</button>
+    <div id="delete-result"></div>
+</div>
 
 <script>
-    function callApi() {
-        fetch('/api/hello')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('result').innerText = data;
-            })
-            .catch(error => console.error(error));
+    const select = document.getElementById('choice');
+    const contents = document.querySelectorAll('.content');
+
+    select.addEventListener('change', () => {
+        contents.forEach(div => div.style.display = 'none');
+        if (select.value) {
+            document.getElementById(select.value).style.display = 'block';
+        }
+    });
+
+    const BASE_URL = 'http://localhost:8080/api';
+
+    function displayResult(div, ok, status, body) {
+        if (ok) {
+            div.innerHTML =
+                `<pre style="color:green;">Status: ${status}\nResponse:\n${body}</pre>`;
+        } else {
+            div.innerHTML =
+                `<pre style="color:red;">Error\n${body}</pre>`;
+        }
     }
+
+    // -------- GET (via POST) --------
+    document.getElementById('get-submit').addEventListener('click', async () => {
+        const key = document.getElementById('get-key').value.trim();
+        const resultDiv = document.getElementById('get-result');
+
+        if (!key) {
+            resultDiv.innerHTML = '<pre style="color:red;">Please enter a key</pre>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${BASE_URL}/GET_VALUE`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: key })
+            });
+
+            const text = await response.text();
+            displayResult(resultDiv, response.ok, response.status, text);
+        } catch (err) {
+            displayResult(resultDiv, false, null, err.message);
+        }
+    });
+
+    // -------- POST --------
+    document.getElementById('post-submit').addEventListener('click', async () => {
+        const key = document.getElementById('post-key').value.trim();
+        const value = document.getElementById('post-value').value.trim();
+        const resultDiv = document.getElementById('post-result');
+
+        if (!key || !value) {
+            resultDiv.innerHTML =
+                '<pre style="color:red;">Please enter both key and value</pre>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${BASE_URL}/POST_VALUE`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: key, values: value })
+            });
+
+            const text = await response.text();
+            displayResult(resultDiv, response.ok, response.status, text);
+        } catch (err) {
+            displayResult(resultDiv, false, null, err.message);
+        }
+    });
+
+    // -------- DELETE --------
+    document.getElementById('delete-submit').addEventListener('click', async () => {
+        const key = document.getElementById('delete-key').value.trim();
+        const resultDiv = document.getElementById('delete-result');
+
+        if (!key) {
+            resultDiv.innerHTML = '<pre style="color:red;">Please enter a key</pre>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${BASE_URL}/DELETE_VALUE`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: key })
+            });
+
+            const text = await response.text();
+            displayResult(resultDiv, response.ok, response.status, text);
+        } catch (err) {
+            displayResult(resultDiv, false, null, err.message);
+        }
+    });
 </script>
 
 </body>
