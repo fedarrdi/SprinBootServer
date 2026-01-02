@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot + HTML</title>
+</head>
+<body>
+
+<h1>Spring Boot API Test</h1>
+<button onclick="callApi()">Call API</button>
+
+<p id="result"></p>
+
+<script>
+    function callApi() {
+        fetch('/api/hello')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('result').innerText = data;
+            })
+            .catch(error => console.error(error));
+    }
+</script>
+
+</body>
+</html>
