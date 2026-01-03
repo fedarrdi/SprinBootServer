@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for authentication operations.
+ * Handles user registration and login at /api/v1/auth endpoints.
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {

@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
+/**
+ * Service for JWT token generation and validation.
+ * Creates signed tokens with user claims and 1-hour expiration using HS256 algorithm.
+ */
 @Service
 public class JwtService {
 

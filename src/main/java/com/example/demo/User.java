@@ -2,6 +2,10 @@ package com.example.demo;
 
 import jakarta.persistence.*;
 
+/**
+ * JPA entity representing a user in the system.
+ * Mapped to 'users' table with auto-generated ID. Email must be unique.
+ */
 @Entity
 @Table(name = "users")
 public class User {

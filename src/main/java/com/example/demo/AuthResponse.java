@@ -1,5 +1,9 @@
 package com.example.demo;
 
+/**
+ * Response payload for authentication endpoints (register/login).
+ * Contains JWT token, user details, and token metadata. Client uses token in Authorization header as "Bearer {token}".
+ */
 public record AuthResponse(
         String token,          // Required: The JWT access token. The client stores it and sends it in future requests
         String type,           // Required: Always "Bearer" (client uses in Authorization header)

@@ -5,6 +5,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Request payload for user registration.
+ * Validates email format and ensures password meets minimum length requirement.
+ */
 public record RegisterRequest(
         String name,  // Optional – no annotations needed
 
