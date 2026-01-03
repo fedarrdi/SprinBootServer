@@ -9,3 +9,6 @@
 
 ### 3. JWT token set as cookie
     - I think the token must be made a cookie not just send then I can see it in the browser (not sure what else is the diff)
+
+### 4. Auto createing tables 
+    - Should be turned off when in production 
