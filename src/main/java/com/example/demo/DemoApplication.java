@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Main Spring Boot application entry point.
- * Bootstraps the application with auto-configuration, component scanning, and embedded server.
+ * Bootstraps the application with autoconfiguration, component scanning, and embedded server.
  */
 @SpringBootApplication
 public class DemoApplication {
