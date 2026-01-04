@@ -16,12 +16,13 @@
 
 ### 2. JWT token resend - NOT PASS
     - When th JWT token expires a new one has to be send to the user 
+    - resend token long lived read about it!!!!!!!
 
 ### 3. JWT token set as cookie - PASS
     - I think the token must be made a cookie not just send then I can see it in the browser (not sure what else is the diff)
     For mobile there are no cookies so we will stay with the current architecture the jwt token will be saved where the clients wants.
 
-### 4. Auto createing tables 
+### 4. Auto createing tables - NOT PASS
     - Should be turned off when in production
 
 ### 5. Should switch to cookies - PASS 
@@ -33,5 +34,6 @@ FROM the 3
     - how sessions mobile are stored
     Not done like this
 
-### 7. Cross site attacks 
+### 7. Cross site attacks - PASS
     - if the jwt token is saved in the local storage some one can read the local storage and see the jwt token
+
