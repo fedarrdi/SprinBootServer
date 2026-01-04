@@ -3,34 +3,37 @@ package com.example.demo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 /**
  * Service for JWT token generation and validation.
- * Creates signed tokens with user claims and 1-hour expiration using HS256 algorithm.
+ * Creates signed tokens with user claims and configurable expiration using HS256 algorithm.
  */
 @Service
 public class JwtService {
 
-    /// Move JWT secret to application.yml
-    private static final String SECRET =
-            "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_256_BITS_MIN";
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration}")
+    private long expirationTime;
 
     public String generateToken(User user) {
             return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 3600_000)) // 1 hour
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()), Jwts.SIG.HS256)
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), Jwts.SIG.HS256)
                 .compact();
     }
 
     public Claims validateToken(String token) {
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

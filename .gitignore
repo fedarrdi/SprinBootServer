@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Application Secrets ###
+# Keep application.properties.example in git, ignore local overrides
+application-local.properties
+application-prod.properties
+# Uncomment below if you want to exclude application.properties entirely
+# src/main/resources/application.properties

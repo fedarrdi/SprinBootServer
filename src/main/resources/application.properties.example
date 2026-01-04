@@ -1,18 +1,19 @@
 spring.application.name=demo
 
+# Database Configuration
 spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 spring.datasource.username=root
-spring.datasource.password=mystrongpassword
+spring.datasource.password=YOUR_DB_PASSWORD_HERE
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-# JPA/Hibernate settings this creates the tables with no external help
+# JPA/Hibernate settings
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-
-# Optional: Better formatted SQL logs and dialect (recommended for MySQL 8+)
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 
 # JWT Configuration
-jwt.secret=CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_AT_LEAST_256_BITS_MIN_32_CHARS
+# IMPORTANT: Generate a strong random secret for production!
+# Use: openssl rand -base64 32
+jwt.secret=YOUR_RANDOM_SECRET_KEY_AT_LEAST_32_CHARACTERS_LONG
 jwt.expiration=3600000
