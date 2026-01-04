@@ -158,14 +158,15 @@
     };
 
     function updateTokenStatus() {
-        const token = localStorage.getItem('jwt_token');
+        // Check if jwt_token cookie exists
+        const hasCookie = document.cookie.split(';').some((item) => item.trim().startsWith('jwt_token='));
         const tokenText = document.getElementById('token-text');
 
-        if (token) {
-            tokenText.textContent = `Stored (${token.substring(0, 20)}...)`;
+        if (hasCookie) {
+            tokenText.textContent = 'Cookie stored (HTTP-only, secure)';
             tokenText.style.color = 'green';
         } else {
-            tokenText.textContent = 'No token stored';
+            tokenText.textContent = 'No cookie stored';
             tokenText.style.color = 'red';
         }
     }
@@ -214,14 +215,12 @@
 
             const data = await response.json();
 
-            // Store JWT token in localStorage
-            if (data.token) {
-                localStorage.setItem('jwt_token', data.token);
-                updateTokenStatus();
-            }
+            // Cookie is automatically set by the server (HTTP-only)
+            // No need to store token in localStorage
+            updateTokenStatus();
 
             responseBox.className = "success";
-            responseBox.textContent = "Login Successful!\n\n" + JSON.stringify(data, null, 2);
+            responseBox.textContent = "Login Successful!\n\nUser authenticated. Cookie stored by browser.\n\n" + JSON.stringify(data, null, 2);
 
         } catch (error) {
             responseBox.className = "error";
@@ -268,14 +267,12 @@
 
             const data = await response.json();
 
-            // Store JWT token in localStorage
-            if (data.token) {
-                localStorage.setItem('jwt_token', data.token);
-                updateTokenStatus();
-            }
+            // Cookie is automatically set by the server (HTTP-only)
+            // No need to store token in localStorage
+            updateTokenStatus();
 
             responseBox.className = "success";
-            responseBox.textContent = "Registration Successful!\n\n" + JSON.stringify(data, null, 2);
+            responseBox.textContent = "Registration Successful!\n\nUser authenticated. Cookie stored by browser.\n\n" + JSON.stringify(data, null, 2);
 
         } catch (error) {
             responseBox.className = "error";
@@ -286,28 +283,24 @@
     async function loadProfile() {
         const responseBox = document.getElementById("response");
         const profileData = document.getElementById("profile-data");
-        const token = localStorage.getItem('jwt_token');
-
-        if (!token) {
-            responseBox.className = "error";
-            responseBox.textContent = "No token found! Please login first.";
-            profileData.innerHTML = '<p style="color: red;">Please login first to view your profile.</p>';
-            return;
-        }
 
         try {
+            // Cookie is automatically sent by browser - no need to add Authorization header
             const response = await fetch("http://localhost:8080/api/v1/profile", {
                 method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
+                credentials: 'include'  // Important: tells browser to send cookies
             });
 
             if (!response.ok) {
                 responseBox.className = "error";
-                responseBox.textContent = `Error ${response.status}: ${response.statusText}\n\n${await response.text() || 'Failed to load profile. Token may be expired.'}`;
-                profileData.innerHTML = '<p style="color: red;">Failed to load profile. Please login again.</p>';
+                const errorText = await response.text();
+                if (response.status === 401 || response.status === 403) {
+                    responseBox.textContent = `Error ${response.status}: Unauthorized\n\nCookie may be expired or invalid. Please login again.`;
+                    profileData.innerHTML = '<p style="color: red;">Authentication failed. Please login again.</p>';
+                } else {
+                    responseBox.textContent = `Error ${response.status}: ${response.statusText}\n\n${errorText || 'Failed to load profile'}`;
+                    profileData.innerHTML = '<p style="color: red;">Failed to load profile.</p>';
+                }
                 return;
             }
 
@@ -343,8 +336,11 @@
     }
 
     function logout() {
-        // Clear the token from localStorage
-        localStorage.removeItem('jwt_token');
+        // Clear the cookie by setting it to expire immediately
+        // Note: This only works for non-HTTP-only cookies
+        // For HTTP-only cookies, you'd need a server-side logout endpoint
+        document.cookie = "jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
         updateTokenStatus();
 
         // Clear profile data
@@ -353,7 +349,7 @@
         // Update response
         const responseBox = document.getElementById("response");
         responseBox.className = "success";
-        responseBox.textContent = "Logged out successfully! Token cleared.";
+        responseBox.textContent = "Logged out!\n\nNote: If using HTTP-only cookies, the cookie cannot be cleared by JavaScript.\nIt will expire automatically after the configured time.";
     }
 </script>
 

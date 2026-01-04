@@ -17,3 +17,4 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 # Use: openssl rand -base64 32
 jwt.secret=YOUR_RANDOM_SECRET_KEY_AT_LEAST_32_CHARACTERS_LONG
 jwt.expiration=3600000
+jwt.cookie.secure=true
