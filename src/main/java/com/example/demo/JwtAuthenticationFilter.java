@@ -14,6 +14,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Authentication filter that validates JWT tokens from requests.
+ * Checks both Authorization header (Bearer token) and cookies for JWT.
+ * Sets Spring Security authentication context if token is valid.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -27,6 +32,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Filters each request to check for and validate JWT tokens.
+     * Extracts token from Authorization header or cookies, validates it,
+     * and sets authentication context if valid.
+     *
+     * @param request HTTP request
+     * @param response HTTP response
+     * @param filterChain filter chain to continue
+     * @throws ServletException if servlet error occurs
+     * @throws IOException if I/O error occurs
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

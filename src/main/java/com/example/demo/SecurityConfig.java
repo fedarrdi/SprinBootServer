@@ -8,6 +8,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Spring Security configuration for JWT-based authentication.
+ * Configures public/protected endpoints and disables unnecessary features for REST API.
+ */
 @Configuration
 public class SecurityConfig {
 
@@ -17,13 +21,25 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    // Password hashing
+    /**
+     * Provides BCrypt password encoder bean for hashing passwords.
+     *
+     * @return BCryptPasswordEncoder instance
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Security rules
+    /**
+     * Configures HTTP security with JWT authentication.
+     * Disables CSRF, form login, and basic auth for stateless REST API.
+     * Public: /api/v1/auth/**, static resources. Protected: all other endpoints.
+     *
+     * @param http HttpSecurity configuration object
+     * @return configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
