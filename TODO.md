@@ -31,4 +31,7 @@ FROM the 3
 
 ### 6. Biscuits for storing session on mobile - PASS
     - how sessions mobile are stored
-    Not done like this 
+    Not done like this
+
+### 7. Cross site attacks 
+    - if the jwt token is saved in the local storage some one can read the local storage and see the jwt token
