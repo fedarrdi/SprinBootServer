@@ -65,7 +65,6 @@ public class AuthController {
         return ResponseEntity.ok(response); // this is a status with body the response
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid LogInRequest request) {
 

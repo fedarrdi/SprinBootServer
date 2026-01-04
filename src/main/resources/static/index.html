@@ -82,6 +82,30 @@
         .error {
             color: red;
         }
+        .profile-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .profile-field {
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+        .profile-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .profile-value {
+            font-size: 16px;
+            color: #333;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +116,7 @@
     <div class="tabs">
         <button class="tab active" onclick="switchTab('login')">Login</button>
         <button class="tab" onclick="switchTab('register')">Register</button>
+        <button class="tab" onclick="switchTab('profile')">Profile</button>
     </div>
 
     <!-- Login Tab -->
@@ -109,11 +134,42 @@
         <button class="submit" onclick="register()">Register</button>
     </div>
 
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content">
+        <div id="profile-data">
+            <p style="color: #666;">Click "Load Profile" to fetch your data</p>
+        </div>
+        <button class="submit" onclick="loadProfile()">Load Profile</button>
+        <button class="submit" onclick="logout()" style="background-color: #f44336; margin-top: 10px;">Logout</button>
+    </div>
+
     <h3>Response</h3>
     <pre id="response">No request sent yet...</pre>
+
+    <div id="token-status" style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 4px; font-size: 12px;">
+        <strong>Token Status:</strong> <span id="token-text">No token stored</span>
+    </div>
 </div>
 
 <script>
+    // Update token status on page load
+    window.onload = function() {
+        updateTokenStatus();
+    };
+
+    function updateTokenStatus() {
+        const token = localStorage.getItem('jwt_token');
+        const tokenText = document.getElementById('token-text');
+
+        if (token) {
+            tokenText.textContent = `Stored (${token.substring(0, 20)}...)`;
+            tokenText.style.color = 'green';
+        } else {
+            tokenText.textContent = 'No token stored';
+            tokenText.style.color = 'red';
+        }
+    }
+
     function switchTab(tab) {
         // Hide all tabs
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -157,6 +213,13 @@
             }
 
             const data = await response.json();
+
+            // Store JWT token in localStorage
+            if (data.token) {
+                localStorage.setItem('jwt_token', data.token);
+                updateTokenStatus();
+            }
+
             responseBox.className = "success";
             responseBox.textContent = "Login Successful!\n\n" + JSON.stringify(data, null, 2);
 
@@ -204,6 +267,13 @@
             }
 
             const data = await response.json();
+
+            // Store JWT token in localStorage
+            if (data.token) {
+                localStorage.setItem('jwt_token', data.token);
+                updateTokenStatus();
+            }
+
             responseBox.className = "success";
             responseBox.textContent = "Registration Successful!\n\n" + JSON.stringify(data, null, 2);
 
@@ -211,6 +281,79 @@
             responseBox.className = "error";
             responseBox.textContent = "Request failed: " + error.message;
         }
+    }
+
+    async function loadProfile() {
+        const responseBox = document.getElementById("response");
+        const profileData = document.getElementById("profile-data");
+        const token = localStorage.getItem('jwt_token');
+
+        if (!token) {
+            responseBox.className = "error";
+            responseBox.textContent = "No token found! Please login first.";
+            profileData.innerHTML = '<p style="color: red;">Please login first to view your profile.</p>';
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/api/v1/profile", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                responseBox.className = "error";
+                responseBox.textContent = `Error ${response.status}: ${response.statusText}\n\n${await response.text() || 'Failed to load profile. Token may be expired.'}`;
+                profileData.innerHTML = '<p style="color: red;">Failed to load profile. Please login again.</p>';
+                return;
+            }
+
+            const data = await response.json();
+
+            // Display profile data nicely
+            profileData.innerHTML = `
+                <div class="profile-card">
+                    <h3 style="margin-top: 0; color: #4CAF50;">Your Profile</h3>
+                    <div class="profile-field">
+                        <div class="profile-label">User ID</div>
+                        <div class="profile-value">${data.id}</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-label">Name</div>
+                        <div class="profile-value">${data.name || 'Not provided'}</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-label">Email</div>
+                        <div class="profile-value">${data.email}</div>
+                    </div>
+                </div>
+            `;
+
+            responseBox.className = "success";
+            responseBox.textContent = "Profile Loaded Successfully!\n\n" + JSON.stringify(data, null, 2);
+
+        } catch (error) {
+            responseBox.className = "error";
+            responseBox.textContent = "Request failed: " + error.message;
+            profileData.innerHTML = '<p style="color: red;">Network error. Please try again.</p>';
+        }
+    }
+
+    function logout() {
+        // Clear the token from localStorage
+        localStorage.removeItem('jwt_token');
+        updateTokenStatus();
+
+        // Clear profile data
+        document.getElementById("profile-data").innerHTML = '<p style="color: #666;">Click "Load Profile" to fetch your data</p>';
+
+        // Update response
+        const responseBox = document.getElementById("response");
+        responseBox.className = "success";
+        responseBox.textContent = "Logged out successfully! Token cleared.";
     }
 </script>
 

@@ -6,9 +6,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     // Password hashing
     @Bean
@@ -26,13 +33,17 @@ public class SecurityConfig {
                 // Disable default login page
                 .formLogin(form -> form.disable())
 
-                // Disable basic auth   
+                // Disable basic auth
                 .httpBasic(basic -> basic.disable())
+
+                // Add JWT filter before Spring Security's authentication filter
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()  // Allow login/register
+                        .requestMatchers("/", "/index.html", "/*.css", "/*.js", "/static/**").permitAll()  // Allow static resources
+                        .anyRequest().authenticated()  // Protect all API endpoints
                 );
 
         return http.build();
